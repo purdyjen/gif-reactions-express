@@ -13,7 +13,7 @@ const removeTopic = document.getElementById("remove-topic");
 const imagesDiv = document.getElementById("images");
 const faveBtn = document.getElementById("fave-button");
 // If null, populates the topics array with eight values and then saves it into local storage
-imagesDiv.innerText = "";
+
 if (topics.length === 0) {
   topics = [
     "anger",
@@ -42,24 +42,47 @@ function addButton() {
 
 addButton(); // Calls addButton()
 
-addBtn.addEventListener("click", function () {
+addBtn.addEventListener("click", function (e) {
   // Triggers function on add-button click
-  event.preventDefault(); // Prevents page from reloading
-  const topic = addTopic.val().trim().toLowerCase(); // Grabs value from the add-topic text box
+  e.preventDefault(); // Prevents page from reloading
+  const topic = addTopic.value.trim().toLowerCase(); // Grabs value from the add-topic text box
   if (topic.length > 0) {
     // Ensures that text box isn't empty when button is clicked
-    topics.push(topic); // Pushes new topic to array
-    localStorage.setItem("topics", JSON.stringify(topics)); // Converts updated array to string and saves to local storage
-    addButton(); // Calls addButton() so that new button is displayed too
+    const index = topics.indexOf(topic); // Locates index number of topic value
+    if (index === -1) {
+      topics.push(topic); // Pushes new topic to array
+      localStorage.setItem("topics", JSON.stringify(topics)); // Converts updated array to string and saves to local storage
+      addButton(); // Calls addButton() so that new button is displayed too
+    } else {
+      alert("You've already added that topic.");
+    }
   }
-  addTopic.val(""); // Clears add-topic text box
+  addTopic.value = ""; // Clears add-topic text box
 });
 
-removeBtn.addEventListener("click", function () {
+addTopic.addEventListener("keypress", function (e) {
+  if (e.key === "Enter") {
+    e.preventDefault(); // Prevents page from reloading
+    const topic = addTopic.value.trim().toLowerCase(); // Grabs value from the add-topic text box
+    if (topic.length > 0) {
+      // Ensures that text box isn't empty when button is clicked
+      const index = topics.indexOf(topic); // Locates index number of topic value
+      if (index === -1) {
+        topics.push(topic); // Pushes new topic to array
+        localStorage.setItem("topics", JSON.stringify(topics)); // Converts updated array to string and saves to local storage
+        addButton(); // Calls addButton() so that new button is displayed too
+      } else {
+        alert("You've already added that topic.");
+      }
+    }
+    addTopic.value = ""; // Clears add-topic text box
+  }
+});
+removeBtn.addEventListener("click", function (e) {
   // Triggers function on remove-button click
-  event.preventDefault(); // Prevents page from reloading
-  removeTopic.val().trim().toLowerCase(); // Grabs value from the remove-topic text box
-  if (removeTopic.length > 0) {
+  e.preventDefault(); // Prevents page from reloading
+  const topic = removeTopic.value.trim().toLowerCase(); // Grabs value from the remove-topic text box
+  if (topic.length > 0) {
     // Ensures that text box isn't empty when button is clicked
     const index = topics.indexOf(topic); // Locates index number of topic value
     if (index !== -1) {
@@ -69,8 +92,92 @@ removeBtn.addEventListener("click", function () {
       addButton(); // Calls addButton() so that the removed topic is no longer displayed
     }
   }
-  removeTopic.val(""); // Clears remove-topic text box
+  removeTopic.value = ""; // Clears remove-topic text box
 });
+
+removeTopic.addEventListener("keypress", function (e) {
+  if (e.key === "Enter") {
+    e.preventDefault(); // Prevents page from reloading
+    const topic = removeTopic.value.trim().toLowerCase(); // Grabs value from the remove-topic text box
+    if (topic.length > 0) {
+      // Ensures that text box isn't empty when button is clicked
+      const index = topics.indexOf(topic); // Locates index number of topic value
+      if (index !== -1) {
+        // Ensures that the topic is in fact in the array before running the following code
+        topics.splice(index, 1); // Removes topic from array
+        localStorage.setItem("topics", JSON.stringify(topics)); // Converts updated array to string and saves to local storage
+        addButton(); // Calls addButton() so that the removed topic is no longer displayed
+      }
+    }
+    removeTopic.value = ""; // Clears remove-topic text box
+  }
+});
+const buildGifObj = (arr) => {
+  const gifArr = [];
+  for (i = 0; i < arr.length; i++) {
+    const newGif = {
+      // Creates new faveGif object with all relevant properties and values
+      dataId: arr[i].id,
+      gifAlt: arr[i].title,
+      gifSrc: arr[i].images.fixed_width_still.url,
+      dataAnimate: arr[i].images.fixed_width.url,
+      dataStill: arr[i].images.fixed_width_still.url,
+      rating: arr[i].rating,
+    };
+    gifArr.push(newGif);
+  }
+  return gifArr;
+};
+
+const buildCards = (arr, isFave) => {
+  for (i = 0; i < arr.length; i++) {
+    // For each object inside array
+    const card = document.createElement("div"); // Creates div element object
+    const img = document.createElement("img"); // Creates img element object
+    const p = document.createElement("p"); // Creates p element object
+    const info = document.createElement("div"); // Creates div element object
+    const title = document.createElement("h5"); // Creates h5 element object
+    const icon = document.createElement("i"); // Creates icon element object
+
+    img.setAttribute("class", "gif card-img-top");
+    img.setAttribute("data-id", arr[i].dataId);
+    img.setAttribute("alt", arr[i].gifAlt);
+    img.setAttribute("src", arr[i].gifSrc);
+    img.setAttribute("data-state", "still");
+    img.setAttribute("data-animate", arr[i].dataAnimate);
+    img.setAttribute("data-still", arr[i].dataStill);
+
+    if (isFave) {
+      icon.setAttribute("class", "icon fas fa-heart");
+    } else {
+      icon.setAttribute("class", "icon far fa-heart");
+    }
+    icon.setAttribute("data-id", arr[i].dataId);
+    icon.setAttribute("alt", arr[i].gifAlt);
+    icon.setAttribute("src", arr[i].gifSrc);
+    icon.setAttribute("data-state", "still");
+    icon.setAttribute("data-animate", arr[i].dataAnimate);
+    icon.setAttribute("data-still", arr[i].dataStill);
+    icon.setAttribute("data-rating", arr[i].rating);
+
+    card.setAttribute("class", "card h-300");
+
+    info.setAttribute("class", "card-body");
+
+    title.setAttribute("class", "card-title");
+    title.innerText = arr[i].gifAlt;
+
+    p.setAttribute("class", "card-text");
+    p.innerText = "Rating: " + arr[i].rating;
+
+    imagesDiv.prepend(card);
+    card.append(img);
+    card.append(icon);
+    card.append(info);
+    info.append(title);
+    info.append(p);
+  } //for loop close
+};
 
 topicsDiv.onclick = function (event) {
   const target = event.target;
@@ -89,7 +196,7 @@ const sendReq = async (attr) => {
   // Creates a random number so that a random subset of gifs is returned
 
   let url = "https://api.giphy.com/v1/gifs/search"; // Base URL for query
-  let key = `api_key=;`;
+  let key = `api_key=TetrpMjBeTZDHJDhshu2qZwVTVoobDCD`;
   let q = attr; // Uses data-name of button as query term
   let limit = "limit=10"; // Sets response limit to ten gifs at a time
   let offset = "offset=" + randomNum(); // Randomizes which page of gif results is returned
@@ -102,68 +209,8 @@ const sendReq = async (attr) => {
     const response = await fetch(queryURL);
     if (response.ok) {
       const jsonResponse = await response.json();
-      for (i = 0; i < jsonResponse.data.length; i++) {
-        // For each object inside array
-        const card = document.createElement("div"); // Creates div element object
-        const img = document.createElement("img"); // Creates img element object
-        const p = document.createElement("p"); // Creates p element object
-        const info = document.createElement("div"); // Creates div element object
-        const title = document.createElement("h5"); // Creates h5 element object
-        const icon = document.createElement("i"); // Creates icon element object
-
-        img.setAttribute("class", "gif card-img-top"); // Adds CSS classes to element
-        img.setAttribute("data-id", jsonResponse.data[i].id); // Adds unique data-id as attribute to allow for selection and manipulation
-        img.setAttribute("alt", jsonResponse.data[i].title); // Creates alt value of image based on object's title
-        img.setAttribute(
-          "src",
-          jsonResponse.data[i].images.fixed_width_still.url
-        ); // Assigns source url using object's fixed_width_still url (still meaning the gif will not automatically play)
-        img.setAttribute("data-state", "still"); // Assigns state to still
-        img.setAttribute(
-          "data-animate",
-          jsonResponse.data[i].images.fixed_width.url
-        ); // Provides animated gif url as data
-        img.setAttribute(
-          "data-still",
-          jsonResponse.data[i].images.fixed_width_still.url
-        ); // Provides still gif url as data
-
-        icon.setAttribute("class", "icon far fa-heart"); // Adds CSS classes to element
-        // Duplicates all of the above image attributes (as well as the gif's rating) so that the gif can be added to faves by clicking on the icon
-        icon.setAttribute("data-id", jsonResponse.data[i].id);
-        icon.setAttribute("alt", jsonResponse.data[i].title);
-        icon.setAttribute(
-          "src",
-          jsonResponse.data[i].images.fixed_width_still.url
-        );
-        icon.setAttribute("data-state", "still");
-        icon.setAttribute(
-          "data-animate",
-          jsonResponse.data[i].images.fixed_width.url
-        );
-        icon.setAttribute(
-          "data-still",
-          jsonResponse.data[i].images.fixed_width_still.url
-        );
-        icon.setAttribute("data-rating", jsonResponse.data[i].rating);
-
-        card.setAttribute("class", "card h-300"); // Adds CSS class
-
-        info.setAttribute("class", "card-body"); // Adds CSS class
-
-        title.setAttribute("class", "card-title"); // Adds CSS class
-        title.innerText = jsonResponse.data[i].title; // Inserts text to title element
-
-        p.setAttribute("class", "card-text"); // Adds CSS class
-        p.innerText = "Rating: " + jsonResponse.data[i].rating; // Inserts text to rating element
-
-        imagesDiv.prepend(card); // Adds gif element to beginning of images element
-        card.append(img); // Adds img element to card element
-        card.append(icon); // Adds icon element to card element
-        card.append(info); // Adds info element to card element
-        info.append(title); // Adds title element to info element
-        info.append(p); // Adds rating element to info element
-      } //for loop close
+      gifArr = buildGifObj(jsonResponse.data);
+      buildCards(gifArr, false);
     }
   } catch (error) {
     console.log(error);
@@ -176,7 +223,7 @@ function toggleFave(target) {
   if (target.getAttribute("class") === "icon far fa-heart") {
     // If the current class of the icon includes "far", then it is not currently a fave
     target.setAttribute("class", "icon fas fa-heart"); // Changes icon from a white outline heart to a red, filled heart indicating new favorite status of gif
-    var faveGif = {
+    const faveGif = {
       // Creates new faveGif object with all relevant properties and values
       dataId: target.getAttribute("data-id"),
       gifAlt: target.getAttribute("alt"),
@@ -196,68 +243,10 @@ function toggleFave(target) {
   }
 }
 
-imagesDiv.onclick = function (event) {
-  const target = event.target;
-  event.preventDefault();
-  if (
-    target.getAttribute("class") === "icon far fa-heart" ||
-    target.getAttribute("class") === "icon fas fa-heart"
-  ) {
-    toggleFave(target);
-  } else if (target.getAttribute("class") === "gif card-img-top") {
-    toggleState(target);
-  }
-};
-
 const displayFaves = () => {
-  // Generates gif cards for each object in array
-  // This code has to be duplicated and modified from above Ajax function because of how objects in the faves array are structured compared to objects in the ajax response
   imagesDiv.innerText = "";
-  for (k = 0; k < faves.length; k++) {
-    const card = document.createElement("div"); // Creates div element object
-    const img = document.createElement("img"); // Creates img element object
-    const p = document.createElement("p"); // Creates p element object
-    const info = document.createElement("div"); // Creates div element object
-    const title = document.createElement("h5"); // Creates h5 element object
-    const icon = document.createElement("i"); // Creates icon element object
-
-    img.setAttribute("class", "gif card-img-top");
-    img.setAttribute("data-id", faves[k].dataId);
-    img.setAttribute("alt", faves[k].gifAlt);
-    img.setAttribute("src", faves[k].gifSrc);
-    img.setAttribute("data-state", "still");
-    img.setAttribute("data-animate", faves[k].dataAnimate);
-    img.setAttribute("data-still", faves[k].dataStill);
-
-    icon.setAttribute("class", "icon fas fa-heart");
-    icon.setAttribute("data-id", faves[k].dataId);
-    icon.setAttribute("alt", faves[k].gifAlt);
-    icon.setAttribute("src", faves[k].gifSrc);
-    icon.setAttribute("data-state", "still");
-    icon.setAttribute("data-animate", faves[k].dataAnimate);
-    icon.setAttribute("data-still", faves[k].dataStill);
-    icon.setAttribute("data-rating", faves[k].rating);
-
-    card.setAttribute("class", "card h-300");
-
-    info.setAttribute("class", "card-body");
-
-    title.setAttribute("class", "card-title");
-    title.innerText = faves[k].gifAlt;
-
-    p.setAttribute("class", "card-text");
-    p.innerText = "Rating: " + faves[k].rating;
-
-    imagesDiv.prepend(card);
-    card.append(img);
-    card.append(icon);
-    card.append(info);
-    info.append(title);
-    info.append(p);
-  }
+  buildCards(faves, true);
 };
-
-// faveBtn.addEventListener("click", displayFaves()); // On click of fave-button, populates the image div with all favorited gifs
 
 function toggleState(target) {
   // Toggles the still/animated state of whichever gif is clicked
@@ -275,3 +264,15 @@ function toggleState(target) {
     target.setAttribute("data-state", "still");
   }
 } //toggleState closing tag
+imagesDiv.onclick = function (e) {
+  const target = e.target;
+  e.preventDefault();
+  if (
+    target.getAttribute("class") === "icon far fa-heart" ||
+    target.getAttribute("class") === "icon fas fa-heart"
+  ) {
+    toggleFave(target);
+  } else if (target.getAttribute("class") === "gif card-img-top") {
+    toggleState(target);
+  }
+};
