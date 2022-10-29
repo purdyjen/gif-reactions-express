@@ -179,17 +179,7 @@ const buildCards = (arr, isFave) => {
   } //for loop close
 };
 
-topicsDiv.onclick = function (event) {
-  const target = event.target;
-  if (!target.getAttribute("data-name")) return;
-  const attr = target.getAttribute("data-name");
-  sendReq(attr);
-};
-
-const sendReq = async (attr) => {
-  // Clears images div of any previous gif results so that only the results of the most recent call are shown
-  imagesDiv.innerText = "";
-
+const buildQuery = (attr) => {
   function randomNum() {
     return Math.floor(Math.random() * 50) + 1;
   }
@@ -204,6 +194,14 @@ const sendReq = async (attr) => {
   let lang = "lang=en"; // Use a 2-letter ISO 639-1 language code
 
   let queryURL = `${url}?${key}&q=${q}&${limit}&${offset}&${rating}&${lang}`; // Complete query URL
+  return queryURL;
+};
+
+const sendReq = async (attr) => {
+  // Clears images div of any previous gif results so that only the results of the most recent call are shown
+  imagesDiv.innerText = "";
+
+  const queryURL = buildQuery(attr);
 
   try {
     const response = await fetch(queryURL);
@@ -215,6 +213,13 @@ const sendReq = async (attr) => {
   } catch (error) {
     console.log(error);
   }
+};
+
+topicsDiv.onclick = function (event) {
+  const target = event.target;
+  if (!target.getAttribute("data-name")) return;
+  const attr = target.getAttribute("data-name");
+  sendReq(attr);
 };
 
 function toggleFave(target) {
@@ -264,6 +269,7 @@ function toggleState(target) {
     target.setAttribute("data-state", "still");
   }
 } //toggleState closing tag
+
 imagesDiv.onclick = function (e) {
   const target = e.target;
   e.preventDefault();
