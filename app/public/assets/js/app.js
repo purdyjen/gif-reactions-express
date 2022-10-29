@@ -1,3 +1,5 @@
+import { buildCards, sendReq } from "./helperFunctions.js";
+
 // checks local storage for topics and faves arrays
 // If topics and/or faves is not saved to storage, then assigns topics and/or faves variable as an empty array
 // If topics and/or faves is saved to storage, then grabs the string, parses it, and converts it back to an array
@@ -7,13 +9,12 @@ let faves = JSON.parse(localStorage.getItem("favorites")) || [];
 
 const topicsDiv = document.getElementById("topics");
 const addBtn = document.getElementById("add-button");
-const addTopic = document.getElementById("add-topic");
 const removeBtn = document.getElementById("remove-button");
+const addTopic = document.getElementById("add-topic");
 const removeTopic = document.getElementById("remove-topic");
 const imagesDiv = document.getElementById("images");
-const faveBtn = document.getElementById("fave-button");
-// If null, populates the topics array with eight values and then saves it into local storage
 
+// If null, populates the topics array with eight values and then saves it into local storage
 if (topics.length === 0) {
   topics = [
     "anger",
@@ -29,9 +30,10 @@ if (topics.length === 0) {
 }
 
 // Adds a button for each topic present in the topics array to allow for easy gif searching
-function addButton() {
+function createButton() {
+  const topicsDiv = document.getElementById("topics");
   topicsDiv.innerHTML = ""; // Clears topics div to ensure only current topics are shown
-  for (i = 0; i < topics.length; i++) {
+  for (let i = 0; i < topics.length; i++) {
     const newButton = document.createElement("button"); // Creates new Button element
     newButton.setAttribute("class", "btn btn-dark"); // Adds the relevant CSS classes for styling
     newButton.setAttribute("data-name", topics[i]); // Creates data-name based on the value
@@ -40,7 +42,7 @@ function addButton() {
   }
 }
 
-addButton(); // Calls addButton()
+createButton(); // Calls createButton()
 
 addBtn.addEventListener("click", function (e) {
   // Triggers function on add-button click
@@ -52,7 +54,7 @@ addBtn.addEventListener("click", function (e) {
     if (index === -1) {
       topics.push(topic); // Pushes new topic to array
       localStorage.setItem("topics", JSON.stringify(topics)); // Converts updated array to string and saves to local storage
-      addButton(); // Calls addButton() so that new button is displayed too
+      createButton(); // Calls createButton() so that new button is displayed too
     } else {
       alert("You've already added that topic.");
     }
@@ -70,7 +72,7 @@ addTopic.addEventListener("keypress", function (e) {
       if (index === -1) {
         topics.push(topic); // Pushes new topic to array
         localStorage.setItem("topics", JSON.stringify(topics)); // Converts updated array to string and saves to local storage
-        addButton(); // Calls addButton() so that new button is displayed too
+        createButton(); // Calls createButton() so that new button is displayed too
       } else {
         alert("You've already added that topic.");
       }
@@ -89,7 +91,7 @@ removeBtn.addEventListener("click", function (e) {
       // Ensures that the topic is in fact in the array before running the following code
       topics.splice(index, 1); // Removes topic from array
       localStorage.setItem("topics", JSON.stringify(topics)); // Converts updated array to string and saves to local storage
-      addButton(); // Calls addButton() so that the removed topic is no longer displayed
+      createButton(); // Calls createButton() so that the removed topic is no longer displayed
     }
   }
   removeTopic.value = ""; // Clears remove-topic text box
@@ -106,117 +108,15 @@ removeTopic.addEventListener("keypress", function (e) {
         // Ensures that the topic is in fact in the array before running the following code
         topics.splice(index, 1); // Removes topic from array
         localStorage.setItem("topics", JSON.stringify(topics)); // Converts updated array to string and saves to local storage
-        addButton(); // Calls addButton() so that the removed topic is no longer displayed
+        createButton(); // Calls createButton() so that the removed topic is no longer displayed
       }
     }
     removeTopic.value = ""; // Clears remove-topic text box
   }
 });
-const buildGifObj = (arr) => {
-  const gifArr = [];
-  for (i = 0; i < arr.length; i++) {
-    const newGif = {
-      // Creates new faveGif object with all relevant properties and values
-      dataId: arr[i].id,
-      gifAlt: arr[i].title,
-      gifSrc: arr[i].images.fixed_width_still.url,
-      dataAnimate: arr[i].images.fixed_width.url,
-      dataStill: arr[i].images.fixed_width_still.url,
-      rating: arr[i].rating,
-    };
-    gifArr.push(newGif);
-  }
-  return gifArr;
-};
 
-const buildCards = (arr, isFave) => {
-  for (i = 0; i < arr.length; i++) {
-    // For each object inside array
-    const card = document.createElement("div"); // Creates div element object
-    const img = document.createElement("img"); // Creates img element object
-    const p = document.createElement("p"); // Creates p element object
-    const info = document.createElement("div"); // Creates div element object
-    const title = document.createElement("h5"); // Creates h5 element object
-    const icon = document.createElement("i"); // Creates icon element object
-
-    img.setAttribute("class", "gif card-img-top");
-    img.setAttribute("data-id", arr[i].dataId);
-    img.setAttribute("alt", arr[i].gifAlt);
-    img.setAttribute("src", arr[i].gifSrc);
-    img.setAttribute("data-state", "still");
-    img.setAttribute("data-animate", arr[i].dataAnimate);
-    img.setAttribute("data-still", arr[i].dataStill);
-
-    if (isFave) {
-      icon.setAttribute("class", "icon fas fa-heart");
-    } else {
-      icon.setAttribute("class", "icon far fa-heart");
-    }
-    icon.setAttribute("data-id", arr[i].dataId);
-    icon.setAttribute("alt", arr[i].gifAlt);
-    icon.setAttribute("src", arr[i].gifSrc);
-    icon.setAttribute("data-state", "still");
-    icon.setAttribute("data-animate", arr[i].dataAnimate);
-    icon.setAttribute("data-still", arr[i].dataStill);
-    icon.setAttribute("data-rating", arr[i].rating);
-
-    card.setAttribute("class", "card h-300");
-
-    info.setAttribute("class", "card-body");
-
-    title.setAttribute("class", "card-title");
-    title.innerText = arr[i].gifAlt;
-
-    p.setAttribute("class", "card-text");
-    p.innerText = "Rating: " + arr[i].rating;
-
-    imagesDiv.prepend(card);
-    card.append(img);
-    card.append(icon);
-    card.append(info);
-    info.append(title);
-    info.append(p);
-  } //for loop close
-};
-
-const buildQuery = (attr) => {
-  function randomNum() {
-    return Math.floor(Math.random() * 50) + 1;
-  }
-  // Creates a random number so that a random subset of gifs is returned
-
-  let url = "https://api.giphy.com/v1/gifs/search"; // Base URL for query
-  let key = `api_key=TetrpMjBeTZDHJDhshu2qZwVTVoobDCD`;
-  let q = attr; // Uses data-name of button as query term
-  let limit = "limit=10"; // Sets response limit to ten gifs at a time
-  let offset = "offset=" + randomNum(); // Randomizes which page of gif results is returned
-  let rating = "rating=PG-13"; // Keeps the gifs family-friendly
-  let lang = "lang=en"; // Use a 2-letter ISO 639-1 language code
-
-  let queryURL = `${url}?${key}&q=${q}&${limit}&${offset}&${rating}&${lang}`; // Complete query URL
-  return queryURL;
-};
-
-const sendReq = async (attr) => {
-  // Clears images div of any previous gif results so that only the results of the most recent call are shown
-  imagesDiv.innerText = "";
-
-  const queryURL = buildQuery(attr);
-
-  try {
-    const response = await fetch(queryURL);
-    if (response.ok) {
-      const jsonResponse = await response.json();
-      gifArr = buildGifObj(jsonResponse.data);
-      buildCards(gifArr, false);
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-topicsDiv.onclick = function (event) {
-  const target = event.target;
+topicsDiv.onclick = function (e) {
+  const target = e.target;
   if (!target.getAttribute("data-name")) return;
   const attr = target.getAttribute("data-name");
   sendReq(attr);
