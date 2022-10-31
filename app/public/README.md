@@ -11,7 +11,7 @@ We have started you off with the 8 primary human emotions as identified by psych
 [Source:](https://www.jmu.edu/counselingctr/files/About%20Emotions.pdf)
 
 * To add a reaction, type it into the input box and then press "Add."
-* To favorite a GIF, simply tap on the heart icon in the upper right corner and continue on with your search. 
+* To favorite a GIF, simply tap on the heart icon in the upper right corner and continue on with your search.
 * To view your favorite GIFs, select the favorites button.
 
 Enjoy!
