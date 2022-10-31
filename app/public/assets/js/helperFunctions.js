@@ -49,6 +49,23 @@ export const buildCards = (arr, isFave) => {
   } //for loop close
 };
 
+const buildGifObj = (arr) => {
+  const gifArr = [];
+  for (let i = 0; i < arr.length; i++) {
+    const newGif = {
+      // Creates new faveGif object with all relevant properties and values
+      dataId: arr[i].id,
+      gifAlt: arr[i].title,
+      gifSrc: arr[i].images.fixed_width_still.url,
+      dataAnimate: arr[i].images.fixed_width.url,
+      dataStill: arr[i].images.fixed_width_still.url,
+      rating: arr[i].rating,
+    };
+    gifArr.push(newGif);
+  }
+  return gifArr;
+};
+
 export const buildQuery = (attr) => {
   function randomNum() {
     return Math.floor(Math.random() * 50) + 1;
@@ -67,28 +84,10 @@ export const buildQuery = (attr) => {
   return queryURL;
 };
 
-const buildGifObj = (arr) => {
-  const gifArr = [];
-  for (let i = 0; i < arr.length; i++) {
-    const newGif = {
-      // Creates new faveGif object with all relevant properties and values
-      dataId: arr[i].id,
-      gifAlt: arr[i].title,
-      gifSrc: arr[i].images.fixed_width_still.url,
-      dataAnimate: arr[i].images.fixed_width.url,
-      dataStill: arr[i].images.fixed_width_still.url,
-      rating: arr[i].rating,
-    };
-    gifArr.push(newGif);
-  }
-  return gifArr;
-};
-
 export const sendReq = async (attr) => {
   // Clears images div of any previous gif results so that only the results of the most recent call are shown
   const imagesDiv = document.getElementById("images");
   imagesDiv.innerText = "";
-
   const queryURL = buildQuery(attr);
 
   try {
